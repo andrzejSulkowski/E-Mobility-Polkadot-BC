@@ -1,0 +1,26 @@
+---- U1
+-- Sr25519
+Secret phrase:       sort bid glow protect depend involve glance place tray antenna expire slam
+  Network ID:        substrate
+  Secret seed:       0x3e1a55ac070434e087024d7b1a38df03678c20ee2431d3109c7c7d9970840352
+  Public key (hex):  0xb81ea3e17ce698ba9c0a4169f793d4d25938f59b7afcab55fa58eba7d5a43154
+  Account ID:        0xb81ea3e17ce698ba9c0a4169f793d4d25938f59b7afcab55fa58eba7d5a43154
+  Public key (SS58): 5GE7mcSwR55fgAXaZEafF2VCKnsd5K9iDagkGmFgababbdXx #Sr25519
+  SS58 Address:      5GE7mcSwR55fgAXaZEafF2VCKnsd5K9iDagkGmFgababbdXx #Sr25519
+
+  Public key (SS58): 5D4UToLBf9QvbDR6SGQ4rXEKNzW41ykW7aC5V22WzP8zVnfH # Ed25519
+  SS58 Address:      5D4UToLBf9QvbDR6SGQ4rXEKNzW41ykW7aC5V22WzP8zVnfH # Ed25519
+
+
+---- U2
+-- Sr25519
+Secret phrase:       once amateur life mansion amateur cloth damp dismiss famous pig route jealous
+  Network ID:        substrate
+  Secret seed:       0x9f19132552d7d8684dbb1edafac92f35e0347304237b5049ea98a0babf15b325
+  Public key (hex):  0x34d4bd13512045fa8d6e16b57a968188b267bcb39727e5ce6812a946e453c324
+  Account ID:        0x34d4bd13512045fa8d6e16b57a968188b267bcb39727e5ce6812a946e453c324
+  Public key (SS58): 5DFyYVLRxKNxevyxH2zF6TBQ73ibG9LRBLbQ9KYQzWrBaBFb #Sr25519
+  SS58 Address:      5DFyYVLRxKNxevyxH2zF6TBQ73ibG9LRBLbQ9KYQzWrBaBFb #Sr25519
+
+  Public key (SS58): 5CxUnndYZxoNZ6pnJ3UmtPenAM6d1XzprujMsV4GvhQbr7dL # Ed25519
+  SS58 Address:      5CxUnndYZxoNZ6pnJ3UmtPenAM6d1XzprujMsV4GvhQbr7dL # Ed25519
