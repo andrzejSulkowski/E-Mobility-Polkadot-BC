@@ -1,4 +1,5 @@
 use sc_cli::RunCmd;
+use clap::Parser;
 
 #[derive(Debug, clap::Parser)]
 pub struct Cli {
@@ -9,8 +10,27 @@ pub struct Cli {
 	pub run: RunCmd,
 }
 
+#[derive(Debug, Parser)]
+pub struct CustomSubcommands {
+    #[clap(subcommand)]
+    pub command: CustomCommand,
+}
+
+#[derive(Debug, Parser)]
+pub enum CustomCommand {
+    #[clap(name = "generate-accounts")]
+    GenerateAccounts {
+        #[clap(short, long, default_value = "10")]
+        users: u32,
+        #[clap(short, long, default_value = "5")]
+        validators: u32,
+    },
+}
+
+
 #[derive(Debug, clap::Subcommand)]
 pub enum Subcommand {
+	CustomCommand(CustomSubcommands),
 	/// Key management cli utilities
 	#[command(subcommand)]
 	Key(sc_cli::KeySubcommand),

@@ -1,7 +1,7 @@
 use crate::{
 	benchmarking::{inherent_benchmark_data, RemarkBuilder, TransferKeepAliveBuilder},
 	chain_spec,
-	cli::{Cli, Subcommand},
+	cli::{Cli, Subcommand, CustomCommand},
 	service,
 };
 use frame_benchmarking_cli::{BenchmarkCmd, ExtrinsicFactory, SUBSTRATE_REFERENCE_HARDWARE};
@@ -9,6 +9,9 @@ use node_template_runtime::{Block, EXISTENTIAL_DEPOSIT};
 use sc_cli::{ChainSpec, RuntimeVersion, SubstrateCli};
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
+use sp_core::sr25519;
+use sp_core::crypto::Ss58Codec;
+use sp_core::Pair;
 
 #[cfg(feature = "try-runtime")]
 use try_runtime_cli::block_building_info::timestamp_with_aura_info;
@@ -52,11 +55,38 @@ impl SubstrateCli for Cli {
 	}
 }
 
+fn generate_accounts(users: u32, validators: u32) {
+    println!("\nUser accounts:");
+    for _ in 0..users {
+        let (pair, phrase, _) = sr25519::Pair::generate_with_phrase(None);
+        let public_key = pair.public();
+        let address = public_key.to_ss58check();
+        println!("{} - {}", address, phrase);
+    }
+
+    println!("\nValidator accounts:");
+    for _ in 0..validators {
+        let (pair, phrase, _) = sr25519::Pair::generate_with_phrase(None);
+        let public_key = pair.public();
+        let address = public_key.to_ss58check();
+        println!("{} - {}", address, phrase);
+    }
+}
+
 /// Parse and run command line arguments
 pub fn run() -> sc_cli::Result<()> {
 	let cli = Cli::from_args();
 
 	match &cli.subcommand {
+        Some(Subcommand::CustomCommand(custom_subcommand)) => {
+            match &custom_subcommand.command {
+                CustomCommand::GenerateAccounts { users, validators } => {
+                    println!("Generating {} user accounts and {} validator accounts.", users, validators);
+                    generate_accounts(*users, *validators);
+                    Ok(())
+                },
+            }
+        },
 		Some(Subcommand::Key(cmd)) => cmd.run(&cli),
 		Some(Subcommand::BuildSpec(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
