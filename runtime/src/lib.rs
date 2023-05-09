@@ -48,6 +48,8 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the template pallet.
 pub use pallet_template;
 
+pub use pallet_charging_station;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -268,7 +270,12 @@ impl pallet_nicks::Config for Runtime {
 	
 	// The ubiquitous event type.
 	type RuntimeEvent = RuntimeEvent;
-	}
+}
+
+
+impl pallet_charging_station::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
 
 parameter_types! {
 	pub FeeMultiplier: Multiplier = Multiplier::one();
@@ -319,6 +326,7 @@ construct_runtime!(
 		TemplateModule: pallet_template,
 		Utility: pallet_utility,
 		Nicks: pallet_nicks,
+		ChargingStation: pallet_charging_station
 	}
 );
 
