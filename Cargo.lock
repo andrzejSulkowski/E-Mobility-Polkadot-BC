@@ -1765,6 +1765,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "failure"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d32e9bd16cc02eae7db7ef620b392808b89f6a5e16bb3497d159c6b92a0f4f86"
+dependencies = [
+ "backtrace",
+ "failure_derive",
+]
+
+[[package]]
+name = "failure_derive"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa4da3c766cd7a0db8242e326e9e4e081edd567072893ed320008189715366a4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "synstructure",
+]
+
+[[package]]
 name = "fake-simd"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2337,6 +2359,25 @@ checksum = "bff49e947297f3312447abdca79f45f4738097cc82b06e72054d2223f601f1b9"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "geo-types"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "866e8f6dbd2218b05ea8a25daa1bfac32b0515fe7e0a37cb6a7b9ed0ed82a07e"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "geohash"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4c97316dbd08e58b49c9f0ab5d37aeca27059065b86b360506ea484bd74b286"
+dependencies = [
+ "failure",
+ "geo-types",
 ]
 
 [[package]]
@@ -4516,6 +4557,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "geohash",
  "parity-scale-codec",
  "scale-info",
  "sp-core",

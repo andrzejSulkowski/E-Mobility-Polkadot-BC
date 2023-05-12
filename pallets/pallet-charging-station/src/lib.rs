@@ -4,68 +4,78 @@
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/reference/frame-pallets/>
 pub use pallet::*;
+use frame_support::pallet_prelude::*;
+use frame_system::pallet_prelude::*;
 
+#[cfg(feature = "std")]
+extern crate geohash;
 
 #[frame_support::pallet]
 pub mod pallet {
-	use frame_support::pallet_prelude::*;
-	use frame_system::pallet_prelude::*;
+	use scale_info::StaticTypeInfo;
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+use super::*;
 
-	/// Configure the pallet by specifying the parameters and types on which it depends.
+    	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 
-	// The pallet's runtime storage items.
-	// https://docs.substrate.io/main-docs/build/runtime-storage/
-	#[pallet::storage]
-	#[pallet::getter(fn something)]
-	// Learn more about declaring storage items:
-	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
-	pub type Something<T> = StorageValue<_, u32>;
+    #[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo, MaxEncodedLen, Debug)]
+    #[scale_info(skip_type_params(T))]
+    pub struct GeoHash([u8; 12]);  // Adjust the size to fit your needs
 
-	#[pallet::storage]
-    #[pallet::getter(fn charging_stations)]
-    pub type ChargingStations<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32>;
+    impl GeoHash {
+        // Create a new GeoHash
+        pub fn new(hash: [u8; 12]) -> Self {
+            Self(hash)
+        }
+    
+        // Access the underlying byte array
+        pub fn as_bytes(&self) -> &[u8; 12] {
+            &self.0
+        }
+    }
 
-	// Pallets use events to inform users when important changes are made.
-	// https://docs.substrate.io/main-docs/build/events-errors/
+    #[pallet::storage]
+    #[pallet::getter(fn geohashes)]
+    pub(super) type GeoHashes<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, GeoHash, ValueQuery>;
+
+	#[pallet::pallet]
+	pub struct Pallet<T>(_);
+
+
+
+
+
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		ChargingStationRegistered(T::AccountId, u32),
+        GeoHashStored(T::AccountId, GeoHash),
 	}
 
-	// Errors inform users that something went wrong.
 	#[pallet::error]
 	pub enum Error<T> {
-		NoneValue,
-		ChargingStationAlreadyRegistered,
+
 	}
 
-	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
-	// These functions materialize as "extrinsics", which are often compared to transactions.
-	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
+
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		/// An example dispatchable that takes a singles value as a parameter, writes the value to
-		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
-		#[pallet::call_index(0)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn register_charging_station(origin: OriginFor<T>, station_id: u32) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-
-			ensure!(!ChargingStations::<T>::contains_key(&who), Error::<T>::ChargingStationAlreadyRegistered);
-
-			ChargingStations::<T>::insert(&who, station_id);
-			// Emit an event.
-			Self::deposit_event(Event::ChargingStationRegistered(who, station_id));
-			// Return a successful DispatchResultWithPostInfo
-			Ok(())
-		}
+        
+        #[pallet::weight(10_000)]
+        #[pallet::call_index(0)]
+        pub fn submit_geohash(origin: OriginFor<T>, geohash: [u8; 12]) -> DispatchResultWithPostInfo {
+            let who = ensure_signed(origin)?;
+            
+            let geo = GeoHash::new(geohash);
+            <GeoHashes<T>>::insert(&who, geo.clone());
+            // Store the geohash in the runtime's storage.
+            //GeoHashes::<T>::insert(geohash);
+            Self::deposit_event(Event::GeoHashStored(who, geo));
+            Ok(().into())
+        }
 	}
 }
