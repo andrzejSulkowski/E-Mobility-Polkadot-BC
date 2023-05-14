@@ -297,8 +297,18 @@ impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+pub struct MaxQueryResultLength;
+pub const MAX_QUERY_RESULT_LENGTH: u32 = 100;
+
+impl frame_support::traits::Get<u32> for MaxQueryResultLength {
+    fn get() -> u32 {
+        MAX_QUERY_RESULT_LENGTH
+    }
+}
+
 impl pallet_charging_station::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type MaxQueryResultLength = MaxQueryResultLength;
 }
 
 impl pallet_utility::Config for Runtime {
