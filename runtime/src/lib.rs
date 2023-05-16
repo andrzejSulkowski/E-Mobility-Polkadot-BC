@@ -6,6 +6,9 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+mod pallet_api;
+use crate::pallet_api::runtime_decl_for_geo_rpc_runtime_api::GeoRpcRuntimeApi;
+
 use pallet_grandpa::AuthorityId as GrandpaId;
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -238,9 +241,7 @@ impl pallet_balances::Config for Runtime {
 	type MaxLocks = ConstU32<50>;
 	type MaxReserves = ();
 	type ReserveIdentifier = [u8; 8];
-	/// The type for recording an account's balance.
 	type Balance = Balance;
-	/// The ubiquitous event type.
 	type RuntimeEvent = RuntimeEvent;
 	type DustRemoval = ();
 	type ExistentialDeposit = ConstU128<EXISTENTIAL_DEPOSIT>;
@@ -310,7 +311,9 @@ impl pallet_charging_station::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxQueryResultLength = MaxQueryResultLength;
 }
-impl GeoRpcRuntimeApi<Block> for Runtime {
+
+
+impl GeoRpcRuntimeApi<Block, AccountId> for Runtime {
     fn get_account_ids(geo_hash: [u8; 9]) -> Vec<<Runtime as frame_system::Config>::AccountId> {
         let geo_hash = pallet_charging_station::GeoHash::new(geo_hash);
         pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash).into_inner()
@@ -343,7 +346,7 @@ construct_runtime!(
 		TemplateModule: pallet_template,
 
 		ChargingStation: pallet_charging_station,
-		GeoRpcRuntimeApi: pallet_charging_station::api::
+		//GeoRpcRuntimeApi: pallet_charging_station::api::
 
 		Utility: pallet_utility,
 		Nicks: pallet_nicks,
@@ -396,6 +399,7 @@ mod benches {
 		[pallet_template, TemplateModule]
 	);
 }
+
 
 impl_runtime_apis! {
 	impl sp_api::Core<Block> for Runtime {
@@ -534,9 +538,7 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl pallet_transaction_payment_rpc_runtime_api::TransactionPaymentCallApi<Block, Balance, RuntimeCall>
-		for Runtime
-	{
+	impl pallet_transaction_payment_rpc_runtime_api::TransactionPaymentCallApi<Block, Balance, RuntimeCall> for Runtime{
 		fn query_call_info(
 			call: RuntimeCall,
 			len: u32,
@@ -619,7 +621,15 @@ impl_runtime_apis! {
 			Executive::try_execute_block(block, state_root_check, signature_check, select).expect("execute-block failed")
 		}
 	}
+
+	// impl pallet_api::GeoRpcRuntimeApi<Block, AccountId> for Runtime {
+	// 	fn get_account_ids(geo_hash: [u8; 9]) -> Vec<AccountId>{
+	// 		return pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash);
+	// 	}
+	// }
 }
+
+
 
 #[cfg(test)]
 mod tests {

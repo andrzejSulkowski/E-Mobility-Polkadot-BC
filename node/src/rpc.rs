@@ -14,7 +14,7 @@ use sp_api::ProvideRuntimeApi;
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::{Error as BlockChainError, HeaderBackend, HeaderMetadata};
 
-use charging_station_rpc::{GeoRpc, GeoRpcApi};
+// use charging_station_rpc::{GeoRpc, GeoRpcApi};
 
 pub use sc_rpc_api::DenyUnsafe;
 
