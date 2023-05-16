@@ -3,12 +3,13 @@
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/reference/frame-pallets/>
+pub mod api;
 pub use pallet::*;
 use frame_support::pallet_prelude::*;
 use frame_support::pallet_prelude::Get;
 use frame_system::pallet_prelude::*;
-use scale_info::StaticTypeInfo;
-
+//pub use pallet_charging_station::api::GeoRpcRuntimeApi;
+pub use api::GeoRpcRuntimeApi;
 
 #[cfg(feature = "std")]
 extern crate geohash;
@@ -21,7 +22,7 @@ use super::*;
 
     	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
-	pub trait Config: frame_system::Config {
+	pub trait Config: frame_system::Config{
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
         #[pallet::constant]
@@ -66,11 +67,8 @@ use super::*;
         GeoHashNotFound,
 	}
 
-
-
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-        
         #[pallet::weight(10_000)]
         #[pallet::call_index(0)]
         pub fn submit_geohash(origin: OriginFor<T>, geohash: [u8; 9]) -> DispatchResultWithPostInfo {
@@ -104,4 +102,10 @@ use super::*;
             Ok(().into())
         }
 	}
+
+    impl<T: Config> Pallet<T> {
+        pub fn get_account_ids(geo_hash: GeoHash) -> BoundedVec<T::AccountId, T::MaxQueryResultLength> {
+            GeoHashes::<T>::get(geo_hash)
+        }
+    }
 }

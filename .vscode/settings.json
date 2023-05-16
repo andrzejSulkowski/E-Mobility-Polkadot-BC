@@ -1,5 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./pallets/template/Cargo.toml"
+        "./pallets/template/Cargo.toml",
+        "./pallets/pallet-charging-station/Cargo.toml",
+    ],
+    "cSpell.words": [
+        "jsonrpsee"
     ]
 }

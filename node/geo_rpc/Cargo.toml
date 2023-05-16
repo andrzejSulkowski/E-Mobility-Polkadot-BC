@@ -1,0 +1,30 @@
+[package]
+name = "charging-station-rpc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+jsonrpc-core = "18.0.0"
+jsonrpc-pubsub = "18.0.0"
+jsonrpc-derive = "18.0.0"
+sc-rpc-api = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sp-api = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sp-blockchain = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+codec = { package = "parity-scale-codec", version = "3.2.2", default-features = false }
+sp-core = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+
+jsonrpsee = { version = "0.16.2", features = ["server"] }
+sc-rpc = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sp-block-builder = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+sc-basic-authorship = { version = "0.10.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+substrate-frame-rpc-system = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+
+
+pallet-charging-station = { path = "../../pallets/pallet-charging-station" }
+
+
+[features]
+default = []
+
+
