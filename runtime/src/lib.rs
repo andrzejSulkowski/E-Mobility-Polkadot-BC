@@ -6,8 +6,8 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-mod pallet_api;
-use crate::pallet_api::runtime_decl_for_geo_rpc_runtime_api::GeoRpcRuntimeApi;
+pub mod pallet_api;
+pub use crate::pallet_api::runtime_decl_for_geo_rpc_runtime_api::GeoRpcRuntimeApi;
 
 use pallet_grandpa::AuthorityId as GrandpaId;
 use sp_api::impl_runtime_apis;
@@ -313,13 +313,6 @@ impl pallet_charging_station::Config for Runtime {
 }
 
 
-impl GeoRpcRuntimeApi<Block, AccountId> for Runtime {
-    fn get_account_ids(geo_hash: [u8; 9]) -> Vec<<Runtime as frame_system::Config>::AccountId> {
-        let geo_hash = pallet_charging_station::GeoHash::new(geo_hash);
-        pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash).into_inner()
-    }
-}
-
 impl pallet_utility::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeCall = RuntimeCall;
@@ -346,8 +339,7 @@ construct_runtime!(
 		TemplateModule: pallet_template,
 
 		ChargingStation: pallet_charging_station,
-		//GeoRpcRuntimeApi: pallet_charging_station::api::
-
+		
 		Utility: pallet_utility,
 		Nicks: pallet_nicks,
 	}
@@ -622,11 +614,12 @@ impl_runtime_apis! {
 		}
 	}
 
-	// impl pallet_api::GeoRpcRuntimeApi<Block, AccountId> for Runtime {
-	// 	fn get_account_ids(geo_hash: [u8; 9]) -> Vec<AccountId>{
-	// 		return pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash);
-	// 	}
-	// }
+    impl pallet_api::GeoRpcRuntimeApi<Block, AccountId> for Runtime {
+        fn get_account_ids(geo_hash: [u8; 9]) -> Vec<AccountId> {
+            let geo_hash = pallet_charging_station::GeoHash::new(geo_hash);
+            pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash).into_inner()
+        }
+    }
 }
 
 

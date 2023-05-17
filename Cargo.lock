@@ -4241,6 +4241,7 @@ dependencies = [
  "node-template-runtime",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc",
+ "parity-scale-codec",
  "sc-basic-authorship",
  "sc-cli",
  "sc-client-api",
@@ -4269,6 +4270,7 @@ dependencies = [
  "sp-timestamp",
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
+ "thiserror",
  "try-runtime-cli",
 ]
 
