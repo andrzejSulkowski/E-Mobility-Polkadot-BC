@@ -16,9 +16,10 @@ use sp_api::ProvideRuntimeApi;
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::{Error as BlockChainError, HeaderBackend, HeaderMetadata};
 
-
 use node_template_runtime::pallet_api::GeoRpcRuntimeApi;
 use crate::geo_rpc::{ GeoRpc, GeoRpcApiServer };
+use crate::silly_rpc::*;
+
 
 // use charging_station_rpc::{GeoRpc, GeoRpcApi};
 
@@ -61,8 +62,13 @@ where
 	// `YourRpcStruct` should have a reference to a client, which is needed
 	// to call into the runtime.
 	// `module.merge(YourRpcTrait::into_rpc(YourRpcStruct::new(ReferenceToClient, ...)))?;`
+
+	module.merge(Silly::new().into_rpc())?;
+
 	let geo_rpc = GeoRpc::new(client);
 	module.merge(geo_rpc.into_rpc())?;
 
+
 	Ok(module)
 }
+

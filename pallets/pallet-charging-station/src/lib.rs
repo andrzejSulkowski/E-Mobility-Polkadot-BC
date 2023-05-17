@@ -1,14 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// Edit this file to define custom logic or remove it if it is not needed.
-/// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://docs.substrate.io/reference/frame-pallets/>
 pub use pallet::*;
 use frame_support::pallet_prelude::*;
 use frame_support::pallet_prelude::Get;
 use frame_system::pallet_prelude::*;
-//pub use pallet_charging_station::api::GeoRpcRuntimeApi;
-
 
 #[cfg(feature = "std")]
 extern crate geohash;
@@ -103,8 +98,16 @@ use super::*;
 	}
 
     impl<T: Config> Pallet<T> {
-        pub fn get_account_ids(geo_hash: GeoHash) -> BoundedVec<T::AccountId, T::MaxQueryResultLength> {
-            GeoHashes::<T>::get(geo_hash)
+
+
+        pub fn get_account_ids(
+            geo_hash: GeoHash
+        ) -> BoundedVec<T::AccountId, T::MaxQueryResultLength> 
+        {
+            return GeoHashes::<T>::get(geo_hash);
         }
-    }
+
+
+	}
 }
+

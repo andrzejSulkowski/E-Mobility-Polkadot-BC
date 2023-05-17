@@ -7,7 +7,7 @@
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 pub mod pallet_api;
-pub use crate::pallet_api::runtime_decl_for_geo_rpc_runtime_api::GeoRpcRuntimeApi;
+// pub use crate::pallet_api::runtime_decl_for_geo_rpc_runtime_api::GeoRpcRuntimeApi;
 
 use pallet_grandpa::AuthorityId as GrandpaId;
 use sp_api::impl_runtime_apis;
@@ -16,7 +16,7 @@ use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	traits::{
-		AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify,
+		AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify, Extrinsic,
 	},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
@@ -47,6 +47,9 @@ use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
+
+use frame_support::pallet_prelude::Get;
+use pallet_charging_station::GeoHash;
 
 // Import ChargingStation pallet.
 pub use pallet_charging_station;
@@ -615,9 +618,9 @@ impl_runtime_apis! {
 	}
 
     impl pallet_api::GeoRpcRuntimeApi<Block, AccountId> for Runtime {
-        fn get_account_ids(geo_hash: [u8; 9]) -> Vec<AccountId> {
-            let geo_hash = pallet_charging_station::GeoHash::new(geo_hash);
-            pallet_charging_station::Pallet::<Runtime>::get_account_ids(geo_hash).into_inner()
+        fn get_account_ids(geo_hash: GeoHash) -> Vec<AccountId> {
+			let account_ids = ChargingStation::get_account_ids(geo_hash);
+			account_ids.into_inner()
         }
     }
 }

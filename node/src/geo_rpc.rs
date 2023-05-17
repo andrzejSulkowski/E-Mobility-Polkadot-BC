@@ -1,18 +1,21 @@
 // node/src/geo_rpc.rs
 
 use std::sync::Arc;
+use jsonrpsee::core::RpcResult;
+use node_template_runtime::MaxQueryResultLength;
+use node_template_runtime::pallet_charging_station::GeoHash;
 use sp_blockchain::HeaderBackend;
 use sp_api::ProvideRuntimeApi;
 
 use node_template_runtime::{opaque::Block, Hash, AccountId };
 use node_template_runtime::pallet_api::GeoRpcRuntimeApi;
+
 use thiserror::Error;
 use jsonrpsee::{
-	core::{Error as JsonRpseeError},
 	proc_macros::rpc,
 };
+use jsonrpsee::types::error::{CallError, ErrorObject};
 use sp_runtime::traits::{Block as BlockT};
-
 
 #[derive(Error, Debug)]
 pub enum CustomApiError {
@@ -21,12 +24,6 @@ pub enum CustomApiError {
 }
 
 
-
-#[rpc(client, server)]
-pub trait GeoRpcApi<BlockHash> {
-    #[method(name = "get_account_ids")]
-    fn get_account_ids(&self, at: Option<BlockHash>, geo_hash: [u8; 9]) -> Result<Vec<AccountId>, JsonRpseeError>;
-}
 pub struct GeoRpc<C, P> {
     client: Arc<C>,
     _marker: std::marker::PhantomData<P>,
@@ -54,6 +51,14 @@ impl From<Error> for i32 {
 	}
 }
 
+#[rpc(client, server)]
+pub trait GeoRpcApi<BlockHash> {
+
+    #[rpc(name = "georpc_getGeohash")]
+    #[method(name = "get_account_ids")]
+    fn get_account_ids_rpc(&self, geo_hash: [u8; 9]) -> RpcResult< Vec<AccountId> >;
+}
+
 impl<C> 
     GeoRpcApiServer<
     <Block as BlockT>::Hash
@@ -64,12 +69,19 @@ where
     C: ProvideRuntimeApi<Block> + HeaderBackend<Block> + Send + Sync + 'static,
     C::Api: GeoRpcRuntimeApi<Block, AccountId>,
 {
-    fn get_account_ids(&self, at: Option<Hash>, geo_hash: [u8; 9]) -> Result<Vec<AccountId>, JsonRpseeError> {
+    fn get_account_ids_rpc(&self, geo_hash: [u8; 9]) -> RpcResult< Vec<AccountId> > {
         let api = self.client.runtime_api();
-        let at_hash = at.unwrap_or_else(|| self.client.info().best_hash);
+        let block_hash = self.client.info().best_hash;
+        let geo_hash_obj = GeoHash::new(geo_hash);
 
-        api.get_account_ids(at_hash, geo_hash).map_err(|e| {
-            JsonRpseeError::Custom(String::from("No AccountIds for this geoHash")) 
-        })
+        let account_ids = api.get_account_ids(block_hash, geo_hash_obj)
+            .map_err(|e| {
+			CallError::Custom(ErrorObject::owned(
+				Error::RuntimeError.into(),
+				"Unable to query fee details.",
+				Some(e.to_string()),
+			))
+		})?;
+       Ok(account_ids)
     }
 }
