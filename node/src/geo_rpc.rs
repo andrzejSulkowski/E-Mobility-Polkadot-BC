@@ -54,9 +54,8 @@ impl From<Error> for i32 {
 #[rpc(client, server)]
 pub trait GeoRpcApi<BlockHash> {
 
-    #[rpc(name = "georpc_getGeohash")]
     #[method(name = "get_account_ids")]
-    fn get_account_ids_rpc(&self, geo_hash: [u8; 9]) -> RpcResult< Vec<AccountId> >;
+    fn get_account_ids_rpc(&self, geo_hash: String) -> RpcResult< Vec<AccountId> >;
 }
 
 impl<C> 
@@ -69,10 +68,31 @@ where
     C: ProvideRuntimeApi<Block> + HeaderBackend<Block> + Send + Sync + 'static,
     C::Api: GeoRpcRuntimeApi<Block, AccountId>,
 {
-    fn get_account_ids_rpc(&self, geo_hash: [u8; 9]) -> RpcResult< Vec<AccountId> > {
+    fn get_account_ids_rpc(&self, geo_hash: String) -> RpcResult< Vec<AccountId> > {
+        if geo_hash.len() != 9 {
+            CallError::Custom(ErrorObject::owned(
+                Error::RuntimeError.into(),
+                "GeoHash must be exactly 9 characters long",
+                None::<String>,
+            ));
+        }
+
+        let geo_hash_bytes: Vec<u8> = geo_hash.into_bytes();
+        if geo_hash_bytes.iter().any(|&byte| byte > 255) {
+            CallError::Custom(ErrorObject::owned(
+                Error::RuntimeError.into(),
+                "GeoHash contains invalid characters",
+                None::<String>,
+            ));
+        }
+
+        let mut geo_hash_arr = [0u8; 9];
+        geo_hash_arr.copy_from_slice(&geo_hash_bytes);
+
+
         let api = self.client.runtime_api();
         let block_hash = self.client.info().best_hash;
-        let geo_hash_obj = GeoHash::new(geo_hash);
+        let geo_hash_obj = GeoHash::new(geo_hash_arr);
 
         let account_ids = api.get_account_ids(block_hash, geo_hash_obj)
             .map_err(|e| {
@@ -85,3 +105,13 @@ where
        Ok(account_ids)
     }
 }
+/*
+
+curl http://localhost:9933 -H "Content-Type: application/json;charset=utf-8" -d '{
+        "jsonrpc" : "2.0",
+        "id": 1,
+        "method": "get_account_ids",
+        "params": ["g8xts647n"]
+}'
+
+ */

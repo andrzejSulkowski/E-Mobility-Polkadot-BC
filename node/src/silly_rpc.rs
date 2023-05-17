@@ -5,12 +5,10 @@ use jsonrpsee::core::RpcResult;
 
 #[rpc(client, server)]
 pub trait SillyRpc {
-    #[rpc(name = "hello_five")]
-    #[method(name = "get_silly_5")]
+    #[method(name = "hello_five")]
     fn silly_5(&self) -> RpcResult<u64>;
 
-    #[rpc(name = "hello_seven")]
-    #[method(name = "get_silly_7")]
+    #[method(name = "hello_seven")]
     fn silly_7(&self) -> RpcResult<u64>;
 }
 
