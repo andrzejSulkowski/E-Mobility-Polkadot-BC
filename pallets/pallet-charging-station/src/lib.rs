@@ -53,6 +53,8 @@ use super::*;
         GeoHashStored(T::AccountId, GeoHash),
         GeoHashesStored(T::AccountId),
         AccountsRetrieved(BoundedVec<T::AccountId, T::MaxQueryResultLength>),
+        GeoHashRemoved(T::AccountId, GeoHash),
+        Other(T::AccountId, String),
 	}
 
 	#[pallet::error]
@@ -93,6 +95,25 @@ use super::*;
             }
 
             Self::deposit_event(Event::GeoHashesStored(who));
+            Ok(().into())
+        }
+
+        #[pallet::weight(10_000)]
+        #[pallet::call_index(2)]
+        pub fn delete_charging_station(origin: OriginFor<T>, geohash: [u8; 9]) -> DispatchResultWithPostInfo {
+            let who = ensure_signed(origin)?;
+
+            let geo = GeoHash::new(geohash);
+
+            let stored_accounts = GeoHashes::<T>::get(&geo);
+
+            if stored_accounts.contains(&who) {
+                // If it is, remove the geohash
+                GeoHashes::<T>::remove(&geo);
+                Self::deposit_event(Event::GeoHashRemoved(who, geo));
+            } else {
+                Self::deposit_event(Event::Other(who, String::from("Not Authorized to delete this GeoHash")));
+            }
             Ok(().into())
         }
 	}
