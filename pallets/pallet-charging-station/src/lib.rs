@@ -54,13 +54,18 @@ use super::*;
         GeoHashesStored(T::AccountId),
         AccountsRetrieved(BoundedVec<T::AccountId, T::MaxQueryResultLength>),
         GeoHashRemoved(T::AccountId, GeoHash),
-        Other(T::AccountId, String),
+
+        // Error Events
+        AlreadyRegistered(T::AccountId, GeoHash),
+        Other(T::AccountId, String)
 	}
 
 	#[pallet::error]
 	pub enum Error<T> {
         GeoHashOverflow,
         GeoHashNotFound,
+        AlreadyRegistered,
+        Other,
 	}
 
 	#[pallet::call]
@@ -73,7 +78,12 @@ use super::*;
             let geo = GeoHash::new(geohash);
 
             GeoHashes::<T>::try_mutate(&geo, |accounts| {
-                accounts.try_push(who.clone()).map_err(|_| Error::<T>::GeoHashOverflow)
+                if !accounts.iter().any(|account| account == &who) {
+                    accounts.try_push(who.clone()).map_err(|_| Error::<T>::GeoHashOverflow)
+                } else {
+                    Self::deposit_event(Event::AlreadyRegistered(who.clone(), geo.clone()));
+                    Err(Error::<T>::AlreadyRegistered.into())
+                }
             })?;
 
 
@@ -83,21 +93,37 @@ use super::*;
 
         #[pallet::weight(10_000)]
         #[pallet::call_index(1)]
-        pub fn submit_multiple_geohashes(origin: OriginFor<T>, geohashes: BoundedVec<[u8; 9], T::MaxQueryResultLength>) -> DispatchResultWithPostInfo {
+        pub fn submit_multiple_geohashes(
+            origin: OriginFor<T>, 
+            geohashes: BoundedVec<[u8; 9], T::MaxQueryResultLength>
+        ) -> DispatchResultWithPostInfo {
             let who = ensure_signed(origin)?;
-            
+        
             for geohash in geohashes {
                 let geo = GeoHash::new(geohash);
         
-                GeoHashes::<T>::try_mutate(&geo, |accounts| {
-                    accounts.try_push(who.clone()).map_err(|_| Error::<T>::GeoHashOverflow)
-                })?;
+                let res = GeoHashes::<T>::try_mutate(&geo, |accounts| {
+                    if !accounts.iter().any(|account| account == &who) {
+                        accounts.try_push(who.clone()).map_err(|_| Error::<T>::GeoHashOverflow)?;
+                        Self::deposit_event(Event::GeoHashesStored(who.clone()));
+                        Ok(())
+                    } else {
+                        Self::deposit_event(Event::AlreadyRegistered(who.clone(), geo.clone()));
+                        Err(Error::<T>::AlreadyRegistered)
+                    }
+                });
+        
+                // Handle the result of try_mutate
+                match res {
+                    Ok(_) => {},
+                    Err(e) => return Err(e.into()),
+                };
             }
-
-            Self::deposit_event(Event::GeoHashesStored(who));
+            
             Ok(().into())
         }
-
+        
+        
         #[pallet::weight(10_000)]
         #[pallet::call_index(2)]
         pub fn delete_charging_station(origin: OriginFor<T>, geohash: [u8; 9]) -> DispatchResultWithPostInfo {
@@ -106,29 +132,24 @@ use super::*;
             let geo = GeoHash::new(geohash);
 
             let stored_accounts = GeoHashes::<T>::get(&geo);
-
             if stored_accounts.contains(&who) {
-                // If it is, remove the geohash
                 GeoHashes::<T>::remove(&geo);
                 Self::deposit_event(Event::GeoHashRemoved(who, geo));
+                Ok(().into())
             } else {
                 Self::deposit_event(Event::Other(who, String::from("Not Authorized to delete this GeoHash")));
+                Err(Error::<T>::Other.into())
             }
-            Ok(().into())
         }
 	}
 
     impl<T: Config> Pallet<T> {
-
-
         pub fn get_account_ids(
             geo_hash: GeoHash
         ) -> BoundedVec<T::AccountId, T::MaxQueryResultLength> 
         {
             return GeoHashes::<T>::get(geo_hash);
         }
-
-
 	}
 }
 
