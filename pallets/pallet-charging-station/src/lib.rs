@@ -4,6 +4,7 @@ pub use pallet::*;
 use frame_support::pallet_prelude::*;
 use frame_support::pallet_prelude::Get;
 use frame_system::pallet_prelude::*;
+use scale_info::prelude::string::String;
 
 #[cfg(feature = "std")]
 extern crate geohash;
@@ -128,19 +129,23 @@ use super::*;
         #[pallet::call_index(2)]
         pub fn delete_charging_station(origin: OriginFor<T>, geohash: [u8; 9]) -> DispatchResultWithPostInfo {
             let who = ensure_signed(origin)?;
-
+        
             let geo = GeoHash::new(geohash);
-
-            let stored_accounts = GeoHashes::<T>::get(&geo);
-            if stored_accounts.contains(&who) {
-                GeoHashes::<T>::remove(&geo);
-                Self::deposit_event(Event::GeoHashRemoved(who, geo));
-                Ok(().into())
-            } else {
-                Self::deposit_event(Event::Other(who, String::from("Not Authorized to delete this GeoHash")));
-                Err(Error::<T>::Other.into())
-            }
+        
+            GeoHashes::<T>::try_mutate(&geo, |accounts| {
+                if let Some(pos) = accounts.iter().position(|account| account == &who) {
+                    accounts.remove(pos);
+                    Self::deposit_event(Event::GeoHashRemoved(who.clone(), geo.clone()));
+                    Ok(())
+                } else {
+                    Self::deposit_event(Event::Other(who.clone(), String::from("Not Authorized to delete this GeoHash")));
+                    Err(Error::<T>::Other)
+                }
+            }).map_err(|e| Into::<DispatchError>::into(e))?;
+        
+            Ok(().into())
         }
+        
 	}
 
     impl<T: Config> Pallet<T> {
