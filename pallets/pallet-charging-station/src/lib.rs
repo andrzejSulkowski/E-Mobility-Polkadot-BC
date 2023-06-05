@@ -145,7 +145,6 @@ use super::*;
         
             Ok(().into())
         }
-        
 	}
 
     impl<T: Config> Pallet<T> {
