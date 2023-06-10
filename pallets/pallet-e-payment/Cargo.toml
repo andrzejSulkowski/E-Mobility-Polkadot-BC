@@ -1,5 +1,5 @@
 [package]
-name = "pallet-charging-station"
+name = "pallet-e-payment"
 version = "1.0.0-dev"
 description = "TEMP STRING"
 authors = ["Andrzej Sulkowski"]
