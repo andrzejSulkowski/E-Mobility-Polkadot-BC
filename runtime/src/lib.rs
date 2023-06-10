@@ -51,11 +51,9 @@ pub use sp_runtime::{Perbill, Permill};
 use frame_support::pallet_prelude::Get;
 use pallet_charging_station::GeoHash;
 
+
 // Import ChargingStation pallet.
 pub use pallet_charging_station;
-
-/// Import the template pallet.
-pub use pallet_template;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -278,6 +276,8 @@ impl pallet_nicks::Config for Runtime {
 }
 
 
+
+
 parameter_types! {
 	pub FeeMultiplier: Multiplier = Multiplier::one();
 }
@@ -294,11 +294,6 @@ impl pallet_transaction_payment::Config for Runtime {
 impl pallet_sudo::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeCall = RuntimeCall;
-}
-
-/// Configure the pallet-template in pallets/template.
-impl pallet_template::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
 }
 
 pub struct MaxQueryResultLength;
@@ -338,8 +333,6 @@ construct_runtime!(
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
-		// Include the custom logic from the pallet-template in the runtime.
-		TemplateModule: pallet_template,
 
 		ChargingStation: pallet_charging_station,
 		
@@ -391,7 +384,6 @@ mod benches {
 		[frame_system, SystemBench::<Runtime>]
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
-		[pallet_template, TemplateModule]
 	);
 }
 
