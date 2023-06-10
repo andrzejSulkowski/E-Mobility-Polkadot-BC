@@ -53,7 +53,8 @@ frame-system-benchmarking = { version = "4.0.0-dev", default-features = false, g
 # Andrzejs Dependencies
 pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
 pallet-charging-station = {version = "1.0.0-dev", default-features = false, path = "../pallets/pallet-charging-station"}
-
+pallet-assets = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.40" }
+pallet-e-payment ={ version = "1.0.0-dev", default-features = false, path = "../pallets/pallet-e-payment"}
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.40" }
@@ -97,7 +98,8 @@ std = [
 	"pallet-balances/std",
 	"pallet-nicks/std",
 
-	"pallet-charging-station/std"
+	"pallet-charging-station/std",
+	"pallet-assets/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
@@ -120,4 +122,6 @@ try-runtime = [
 	"pallet-sudo/try-runtime",
 	"pallet-timestamp/try-runtime",
 	"pallet-transaction-payment/try-runtime",
+
+	"pallet-assets/try-runtime",
 ]
